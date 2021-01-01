@@ -19,6 +19,9 @@ team_ui <- function(id){
             ),
           selected = "shl"
         ),
+        uiOutput(
+          outputId = ns("draftClass")
+        ),
         actionButton(
           inputId = ns("reset"),
           label = "Reset team selection"
@@ -138,6 +141,7 @@ team_ui <- function(id){
 
 ## Backend for vizualizations
 team_server <- function(id){
+  ns <- NS(id)
   ## Calling moduleServer function
   moduleServer(
     id,
@@ -155,6 +159,25 @@ team_server <- function(id){
         
         return(data)
       })
+      
+      ## Outputs a UI with all available draft classes
+      output$draftClass <- renderUI({
+        data <- selectedData()$players
+        
+        selectInput(
+          inputId = ns("draftClass"),
+          label = "Select draft class",
+          choices = 
+            c(
+              "ALL",
+              sort(
+                unique(data$season)
+              )
+            ),
+          selected = "ALL"
+        )
+      })
+      
       
       ## Outputs a datatable of all the teams in the Western conference
       output$dataTableWest <- DT::renderDT({
@@ -218,8 +241,18 @@ team_server <- function(id){
       
       ## Selects League or Team-specific data
       playerData <- reactive({
+        
+        if(input$draftClass == "ALL"){
+          data <- selectedData()$players
+        } else {
+          data <- selectedData()$players %>% 
+            filter(
+              season %in% input$draftClass
+            )
+        }
+        
         if(is.null(chosenRow())){
-          data <- selectedData()$players %>%
+          data <- data %>%
             rename(
               GP = GP.x
             ) %>% 
@@ -254,7 +287,7 @@ team_server <- function(id){
               Team
             )
           
-          data <- selectedData()$players %>% 
+          data <- data %>% 
             filter(
               team == chosenTeam$Team
             ) %>%
