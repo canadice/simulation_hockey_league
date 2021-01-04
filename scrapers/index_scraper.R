@@ -208,7 +208,7 @@ schedule_index_scraper <-
       unlist()
     
     ## Scrapes the actual data and summarizes everything in a table
-    data_table <- XML::xpathApply(doc = index_page, 
+    data <- XML::xpathApply(doc = index_page, 
                                   path = paste("//table[@id=\"", 
                                                data_type, 
                                                "\"]/tbody/tr/td", 
@@ -219,10 +219,10 @@ schedule_index_scraper <-
              byrow = TRUE) %>% 
       as.data.frame()
     
-    colnames(data_table) <- header
+    colnames(data) <- header
     
     ## Moves the conferences together
-    data_table <- data_table %>% 
+    data_table <- data %>% 
       select(-'Game link') %>% 
       mutate(across(contains("Score"), as.numeric),
              across(Overtime:Shootout, str_detect, pattern = "X")) %>% 
