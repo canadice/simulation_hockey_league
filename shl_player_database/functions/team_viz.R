@@ -182,36 +182,61 @@ team_server <- function(id){
       ## Outputs a datatable of all the teams in the Western conference
       output$dataTableWest <- DT::renderDT({
         selectedData()$standings %>% 
+          left_join(
+            division_key,
+            by = c("Team" = "team")
+          ) %>% 
           filter(Conference == "West") %>% 
-          select(-Conference)
-        
+          select(
+            -Conference,
+            -conference
+            ) %>% 
+          arrange(
+            desc(Division),
+            desc(Points)
+          )
       },
       rownames = FALSE,
       class = 'compact cell-border stripe',
       selection = 'single',
+      extensions = 'RowGroup',
       options = 
         list(
           dom = "t",
           paging = FALSE,
-          orderClasses = TRUE
+          orderClasses = TRUE,
+          rowGroup = list(dataSrc = 11)
         )
       )
       
       ## Outputs a datatable of all the teams in the Eastern conference
       output$dataTableEast <- DT::renderDT({
         selectedData()$standings %>% 
+          left_join(
+            division_key,
+            by = c("Team" = "team")
+          ) %>%
           filter(Conference == "East") %>% 
-          select(-Conference)
+          select(
+            -Conference,
+            -conference
+          ) %>% 
+          arrange(
+            desc(Division),
+            desc(Points)
+          )
         
       },
       rownames = FALSE,
       class = 'compact cell-border stripe',
       selection = 'single',
+      extensions = 'RowGroup',
       options = 
         list(
           dom = "t",
           paging = FALSE,
-          orderClasses = TRUE
+          orderClasses = TRUE,
+          rowGroup = list(dataSrc = 11)
         )
       )
       

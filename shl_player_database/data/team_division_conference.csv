@@ -1,4 +1,4 @@
-team;divison;conference
+team;Division;conference
 Edmonton Blizzard;Northwest;Western
 Calgary Dragons;Northwest;Western
 Texas Renegades;Southwest;Western
@@ -7,7 +7,7 @@ Winnipeg Jets;Northwest;Western
 New Orleans Specters;Southwest;Western
 Seattle Argonauts;Northwest;Western
 Minnesota Monarchs;Northwest;Western
-San Fransisco Pride;Southwest;Western
+San Francisco Pride;Southwest;Western
 Hamilton Steelhawks;Great Lakes;Eastern
 Buffalo Stampede;Great Lakes;Eastern
 Chicago Syndicate;Great Lakes;Eastern
@@ -16,7 +16,7 @@ Toronto North Stars;Great Lakes;Eastern
 Atlanta Inferno;Atlantic;Eastern
 New England Wolfpack;Atlantic;Eastern
 Tampa Bay Barracuda;Atlantic;Eastern
-Baltimoore Platoon;Atlantic;Eastern
+Baltimore Platoon;Atlantic;Eastern
 Carolina Kraken;Atlantic South East;Eastern
 Detroit Falcons;Atlantic South East;Eastern
 Maine Timber;Atlantic North East;Eastern
