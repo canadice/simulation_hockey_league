@@ -381,7 +381,7 @@ team_server <- function(id){
             desc(.data[[statistic]])
           ) %>% 
           slice(
-            1:5
+            1:10
           )
         
         if(str_detect(statistic, pattern = "TOI")){
