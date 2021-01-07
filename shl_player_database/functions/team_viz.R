@@ -388,6 +388,7 @@ team_server <- function(id){
           data <- 
             data %>% 
             mutate(
+              ## Using the format with glue grammar that allows for dynamic variable names
               "{statistic}" := 
                 format(
                   as.POSIXct(
