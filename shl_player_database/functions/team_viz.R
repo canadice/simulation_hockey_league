@@ -1,6 +1,7 @@
 team_ui <- function(id){
   ns <- NS(id)
   
+  
   tagList(
     ## Layout of the option sidebar
     # Option for selection of type of player/goalie
@@ -56,69 +57,83 @@ team_ui <- function(id){
         fluidRow(
           column(
             width = 4,
-            h4("Goal Leader"),
+            selectInput(
+              inputId = ns("statisticOne"),
+              label = "Choose statistic",
+              choices = 
+                ## Uses the player statistic vector defined in data_loader.R
+                playerStatistics,
+              selected = "G"
+            ),
             DTOutput(
-              outputId = ns("dataTablePlayerGoal")
+              outputId = ns("dataTableOne")
             )
           ),
           column(
             width = 4, 
-            h4("Assist Leader"),
+            selectInput(
+              inputId = ns("statisticTwo"),
+              label = "Choose statistic",
+              choices = 
+                playerStatistics,
+              selected = "A"
+            ),
             DTOutput(
-              outputId = ns("dataTablePlayerAssist")
+              outputId = ns("dataTableTwo")
             )
           ),
           column(
             width = 4,
-            h4("Point Leader"),
+            selectInput(
+              inputId = ns("statisticThree"),
+              label = "Choose statistic",
+              choices = 
+                playerStatistics,
+              selected = "P"
+            ),
             DTOutput(
-              outputId = ns("dataTablePlayerPoint")
+              outputId = ns("dataTableThree")
             )
           )
         ),
         fluidRow(
           column(
             width = 4,
-            h4("Plus Minus Leader"),
+            selectInput(
+              inputId = ns("statisticFour"),
+              label = "Choose statistic",
+              choices = 
+                playerStatistics,
+              selected = "+/-"
+            ),
             DTOutput(
-              outputId = ns("dataTablePlayerPlus")
+              outputId = ns("dataTableFour")
             )
           ),
           column(
             width = 4, 
-            h4("Penalty Leader"),
+            selectInput(
+              inputId = ns("statisticFive"),
+              label = "Choose statistic",
+              choices = 
+                playerStatistics,
+              selected = "PIM"
+            ),
             DTOutput(
-              outputId = ns("dataTablePlayerPIM")
+              outputId = ns("dataTableFive")
             )
           ),
           column(
             width = 4,
-            h4("Power Play Leader"),
+            selectInput(
+              inputId = ns("statisticSix"),
+              label = "Choose statistic",
+              choices = 
+                playerStatistics,
+              selected = "SB"
+            ),
             DTOutput(
-              outputId = ns("dataTablePlayerPPP")
-            )
-          )
-        ),
-        fluidRow(
-          column(
-            width = 4,
-            h4("Hits Leader"),
-            DTOutput(
-              outputId = ns("dataTablePlayerHits")
-            )
-          ),
-          column(
-            width = 4, 
-            h4("Time On Ice Leader"),
-            DTOutput(
-              outputId = ns("dataTablePlayerTOI")
-            )
-          ),
-          column(
-            width = 4,
-            h4("Shot Blocking Leader"),
-            DTOutput(
-              outputId = ns("dataTablePlayerShotsBlocked")
+              outputId = ns("dataTableSix")
             )
           )
         ),
@@ -204,7 +219,7 @@ team_server <- function(id){
         list(
           dom = "t",
           paging = FALSE,
-          orderClasses = TRUE,
+          ordering = FALSE,
           rowGroup = list(dataSrc = 11)
         )
       )
@@ -235,7 +250,7 @@ team_server <- function(id){
         list(
           dom = "t",
           paging = FALSE,
-          orderClasses = TRUE,
+          ordering = FALSE,
           rowGroup = list(dataSrc = 11)
         )
       )
@@ -287,7 +302,7 @@ team_server <- function(id){
               First.Name,
               Last.Name,
               Position,
-              GP:SHTOI
+              GP:`FF% rel`
             ) %>% 
             mutate(
               Name = paste(First.Name, Last.Name)
@@ -305,6 +320,15 @@ team_server <- function(id){
             ) 
         } else{
           chosenTeam <- selectedData()$standings %>% 
+            left_join(
+              division_key,
+              by = c("Team" = "team")
+            ) %>% 
+            arrange(
+              Conference,
+              desc(Division),
+              desc(Points)
+            ) %>% 
             slice(
               chosenRow()
             ) %>% 
@@ -325,7 +349,7 @@ team_server <- function(id){
               First.Name,
               Last.Name,
               Position,
-              GP:SHTOI
+              GP:`FF% rel`
             ) %>% 
             mutate(
               Name = paste(First.Name, Last.Name)
@@ -346,19 +370,41 @@ team_server <- function(id){
         return(data)
       })
       
-      ## Outputs player statistics from selected team
-      output$dataTablePlayerGoal <- renderDT({
-        playerData() %>% 
+      ## Creates a function that uses the chosen statistic and creates the table
+      statSelector <- function(statistic){
+        data <- playerData() %>% 
           select(
             TEAM:GP,
-            G
+            one_of(statistic)
           ) %>% 
           arrange(
-            desc(G)
+            desc(.data[[statistic]])
           ) %>% 
           slice(
             1:5
           )
+        
+        if(str_detect(statistic, pattern = "TOI")){
+          data <- 
+            data %>% 
+            mutate(
+              "{statistic}" := 
+                format(
+                  as.POSIXct(
+                    .data[[statistic]], 
+                    origin = "1970-01-01"
+                  ), 
+                  "%M:%S"
+                )
+            )
+        }
+        
+        return(data)
+      }
+      
+      ## Outputs player statistics from selected team
+      output$dataTableOne <- renderDT({
+        statSelector(input$statisticOne)
       },
       rownames = FALSE,
       class = 'compact cell-border stripe',
@@ -370,18 +416,8 @@ team_server <- function(id){
         )
       )
       ## Outputs player statistics from selected team
-      output$dataTablePlayerAssist <- renderDT({
-        playerData() %>% 
-          select(
-            TEAM:GP,
-            A
-          ) %>% 
-          arrange(
-            desc(A)
-          ) %>% 
-          slice(
-            1:5
-          )
+      output$dataTableTwo <- renderDT({
+        statSelector(input$statisticTwo)
       },
       rownames = FALSE,
       class = 'compact cell-border stripe',
@@ -393,18 +429,8 @@ team_server <- function(id){
         )
       )
       
-      output$dataTablePlayerPoint <- renderDT({
-        playerData() %>% 
-          select(
-            TEAM:GP,
-            P
-          ) %>% 
-          arrange(
-            desc(P)
-          ) %>% 
-          slice(
-            1:5
-          )
+      output$dataTableThree <- renderDT({
+        statSelector(input$statisticThree)
       },
       rownames = FALSE,
       class = 'compact cell-border stripe',
@@ -416,18 +442,8 @@ team_server <- function(id){
         )
       )
       ## Outputs player statistics from selected team
-      output$dataTablePlayerPlus <- renderDT({
-        playerData() %>% 
-          select(
-            TEAM:GP,
-            `+/-`
-          ) %>% 
-          arrange(
-            desc(`+/-`)
-          ) %>% 
-          slice(
-            1:5
-          )
+      output$dataTableFour <- renderDT({
+        statSelector(input$statisticFour)
       },
       rownames = FALSE,
       class = 'compact cell-border stripe',
@@ -440,18 +456,8 @@ team_server <- function(id){
       )
       
       ## Outputs player statistics from selected team
-      output$dataTablePlayerPIM <- renderDT({
-        playerData() %>% 
-          select(
-            TEAM:GP,
-            PIM
-          ) %>% 
-          arrange(
-            desc(PIM)
-          ) %>% 
-          slice(
-            1:5
-          )
+      output$dataTableFive <- renderDT({
+        statSelector(input$statisticFive)
       },
       rownames = FALSE,
       class = 'compact cell-border stripe',
@@ -463,18 +469,8 @@ team_server <- function(id){
         )
       )
       ## Outputs player statistics from selected team
-      output$dataTablePlayerPPP <- renderDT({
-        playerData() %>% 
-          select(
-            TEAM:GP,
-            PPP
-          ) %>% 
-          arrange(
-            desc(PPP)
-          ) %>% 
-          slice(
-            1:5
-          )
+      output$dataTableSix <- renderDT({
+        statSelector(input$statisticSix)
       },
       rownames = FALSE,
       class = 'compact cell-border stripe',
@@ -486,80 +482,6 @@ team_server <- function(id){
         )
       )
       
-      #####################SOMETHING IS HAPPENING HERE WITH THE CONVERSION THAT IS NOT CORRECT!!!
-      ## Outputs player statistics from selected team
-      output$dataTablePlayerTOI <- renderDT({
-        playerData() %>% 
-          select(
-            TEAM:GP,
-            TOI
-          ) %>% 
-          arrange(
-            desc(TOI)
-          ) %>% 
-          slice(
-            1:5
-          ) %>% 
-          ## Converts TOI from nr of seconds to minutes:seconds format
-          mutate(
-            TOI = format(as.POSIXct(TOI, origin = "1970-01-01"), "%M:%S")
-          )
-      },
-      rownames = FALSE,
-      class = 'compact cell-border stripe',
-      selection = 'single',
-      options = 
-        list(
-          dom = "t",
-          ordering = FALSE
-        )
-      )
-      ## Outputs player statistics from selected team
-      output$dataTablePlayerHits <- renderDT({
-        playerData() %>% 
-          select(
-            TEAM:GP,
-            HITS
-          ) %>% 
-          arrange(
-            desc(HITS)
-          ) %>% 
-          slice(
-            1:5
-          )
-      },
-      rownames = FALSE,
-      class = 'compact cell-border stripe',
-      selection = 'single',
-      options = 
-        list(
-          dom = "t",
-          ordering = FALSE
-        )
-      )
-      ## Outputs player statistics from selected team
-      output$dataTablePlayerShotsBlocked <- renderDT({
-        playerData() %>% 
-          select(
-            TEAM:GP,
-            SB
-          ) %>% 
-          arrange(
-            desc(SB)
-          ) %>% 
-          slice(
-            1:5
-          )
-      },
-      rownames = FALSE,
-      class = 'compact cell-border stripe',
-      selection = 'single',
-      options = 
-        list(
-          dom = "t",
-          ordering = FALSE
-        )
-      )
       ## Creates the heatmap
       output$matchupHeatmap <- renderPlotly({
         ## Gets the order of the teams in each conference by alphabetical order
