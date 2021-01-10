@@ -10,7 +10,7 @@
 ###                                                                        ###
 ###                            AUTHOR: CANADICE                            ###
 ###                          CREATED: 2020-12-31                           ###
-###                          LAST EDIT: 2021-01-03                         ###
+###                          LAST EDIT: 2021-01-06                         ###
 ###                                                                        ###
 ##############################################################################
 ##############################################################################
@@ -25,6 +25,11 @@ require(rpart.plot)
 require(keras)
 ## Use install_keras() the first time and follow the instructions posted
 # install_keras()
+
+### Sets the seed to be used for reproducible results
+## Produces an error for some versions of Tensorflow
+# use_session_with_seed(20200103, quiet = TRUE)
+
 
 ##----------------------------------------------------------------
 ##                  Setting the working directory                -
@@ -48,16 +53,28 @@ data <-
     sep = ",", 
     header = TRUE
   ) %>% 
+  
   mutate(
     FHMID = as.numeric(FHMID)
   ) %>%   
+  
+  ### Filter over the SHL as the Junior and IIHF might be more fluid in positions
+  ### Also filters the player ID 1000028 which probably is a CPU player as they have 
+  ### unreasonable high games played (300+ in one season)
+  
+  filter(
+    LeagueId == 1,
+    FHMID != 1000028
+  ) %>% 
   
   ###  Aggregating over player ID and season
   
   group_by(
     FHMID,
+    ## Group by season because of varying positions during a career
     Season
   ) %>% 
+  
   summarize(
     across(
       GamesPlayed:FaceoffWins, 
@@ -84,19 +101,31 @@ data <-
       ),
     by = c("FHMID" = "FHMIDS")
   ) %>% 
+  
   rename(
     truePosition = Posistion.Real
-  ) %>% 
-  mutate(
-    truePosition = truePosition %>% factor()
   ) %>% 
   
   ### Filtering out the seasons where FHM was used, and the data available has changed
   
   filter(
     Season < 53
+  ) %>% 
+  
+  ### Changing some true labels because of swapped positions during their career
+  
+  mutate(
+    truePosition = 
+      case_when(
+        Name == "Anastasia O'Koivu" & Season < 52 ~ "D",
+        Name == "GOD McZehrl" & Season < 50 ~ "D",
+        TRUE ~ truePosition
+      )
+  ) %>% 
+  
+  mutate(
+    truePosition = truePosition %>% factor()
   )
-
 
 ##-------------------------------------------------------------------
 ##  Splitting the data to training and test based on known labels   -
@@ -111,7 +140,11 @@ trainData <-
 testData <-
   data %>% 
   filter(
-    is.na(truePosition)
+    is.na(truePosition),
+    ## Adds on a filter to remove the observations that have NA values
+    ## These come from season 1-4 where some data extraction was done via box scores
+    !is.na(PenaltyMajors),
+    !is.na(FaceoffWins)
   )
 
 ##----------------------------------------------------------------
@@ -190,7 +223,7 @@ xTestScaled <-
       attr(
         xTrainScaled, "scaled:scale"
       )
-  )
+  ) 
 
 ### One-hot encoding of the response variable
 
@@ -222,6 +255,12 @@ nnModel <-
     activation = "relu",
     use_bias = TRUE, 
     name = "Third"
+  ) %>% 
+  ### This doesn't work as the temperature is hard coded
+  layer_lambda(
+    ## Tries to alter the temperature of the network
+    f = function(x) x / 1,
+    trainable = TRUE
   ) %>% 
   layer_dense(
     units = 2,
@@ -265,9 +304,24 @@ history <-
         patience = 10,
         monitor = "val_loss"
       )
-  )
+  ) %>% 
+  
+  ### Once a general enough model has been found, the weights are frozen from training
+  
+  freeze_weights() 
 
-### Fits the model to this epoch
+##---------------------------------------------------------------
+##      Calibration of the temperature in the softmax layer     -
+##---------------------------------------------------------------
+
+
+
+
+
+
+##----------------------------------------------------------------
+##            Fits the model to the calibrated model             -
+##----------------------------------------------------------------
 
 prediction <- 
   yTrain %>% 
@@ -275,6 +329,66 @@ prediction <-
     predict(
       nnModel,
       xTrainScaled,
+      verbose = 1,
+      batch_size = 50
+      ) %>% 
+      as.data.frame() %>% 
+      rowwise() %>% 
+      mutate(
+        prob = pmax(V1, V2)
+      ) %>% 
+      select(
+        prob
+    ),
+    predict_classes(
+      nnModel,
+      xTrainScaled,
+      verbose = 1,
+      batch_size = 50
+      ) %>% 
+      as.data.frame(
+    ),
+    trainData$Name,
+    trainData$Season
+  ) 
+
+colnames(prediction) <- 
+  c("ClassDefenceman", 
+    "ClassForward", 
+    "prob", 
+    "predictedClassForward",
+    "Name",
+    "Season"
+    )
+
+### Checks the probabilities of predictions.
+
+prediction %>% 
+  group_by(
+    ClassForward, 
+    predictedClassForward
+    ) %>% 
+  summarize(
+    mean = mean(prob),
+    n = n()
+    )
+
+### Sorts out the misclassified observations
+
+missedPredictions <- 
+  prediction %>% 
+  filter(ClassForward != predictedClassForward)
+
+
+##---------------------------------------------------------------
+##    Predicting the new observations on the unlabeled data     -
+##---------------------------------------------------------------
+
+predictionTest <- 
+  cbind(
+    predict(
+      nnModel,
+      xTestScaled,
       verbose = 1,
       batch_size = 50
     ) %>% 
@@ -288,17 +402,25 @@ prediction <-
       ),
     predict_classes(
       nnModel,
-      xTrainScaled,
+      xTestScaled,
       verbose = 1,
       batch_size = 50
     ) %>% 
-      as.data.frame() %>% 
-      rename(
-        
-      )
+      as.data.frame(),
+    testData$FHMID
   ) 
 
+colnames(predictionTest) <- 
+  c("prob", 
+    "predictedClassForward",
+    "FHMID"
+  )
 
-
-
-
+predictionTest %>% 
+  group_by(
+    predictedClass2
+  ) %>% 
+  summarize(
+    mean = mean(prob),
+    n = n()
+  )
