@@ -64,48 +64,32 @@ radar_server <- function(id){
       ## Observes options of player and goalie
       selectedData <- reactive({
         if(input$league == "shl"){
-          data <- shl_data[[input$player_type]] %>% 
-            select(
-              team,
-              First.Name,
-              Last.Name,
-              user,
-              season,
-              Position,
-              Handedness,
-              tpe,
-              where(is.numeric)
-            ) %>% 
-            mutate(
-              Name = paste(First.Name, Last.Name)
-            ) %>% 
-            select(
-              -PId,
-              -HT,
-              -WT
-            ) 
+          data <- shl_data[[input$player_type]]
         } else {
-          data <- smjhl_data[[input$player_type]] %>% 
-            select(
-              team,
-              First.Name,
-              Last.Name,
-              user,
-              season,
-              Position,
-              Handedness,
-              tpe,
-              where(is.numeric)
-            ) %>% 
-            mutate(
-              Name = paste(First.Name, Last.Name)
-            ) %>% 
-            select(
-              -PId,
-              -HT,
-              -WT
-            ) 
+          data <- smjhl_data[[input$player_type]]
         }
+        
+        data <- data %>% 
+          select(
+            team,
+            First.Name,
+            Last.Name,
+            user,
+            season,
+            Position,
+            Handedness,
+            tpe,
+            Birthplace,
+            where(is.numeric)
+          ) %>% 
+          mutate(
+            Name = paste(First.Name, Last.Name)
+          ) %>% 
+          select(
+            -PId,
+            -HT,
+            -WT
+          ) 
         
         return(data)
       })
