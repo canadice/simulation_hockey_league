@@ -14,10 +14,13 @@ setwd("./shl_player_database")
 # source("../scrapers/scraper_functions.R")
 source("../scrapers/team_scraper.R")
 source("../scrapers/player_scraper.R")
-source("../scrapers/data_scraper.R")
-source("../scrapers/index_scraper.R")
 
+source("../scrapers/data_scraper.R")
 source("../scrapers/data_parser.R")
+
+source("../scrapers/index_scraper.R")
+source("../scrapers/index_parser.R")
+
 source("../scrapers/user_data_parser.R")
 source("../scrapers/player_data_parser.R")
 
@@ -217,7 +220,7 @@ shl <- function(){
               max_dist = 3) %>% 
     ## Removes the join variable
     select(-clean_name.x, -clean_name.y) %>% 
-    group_split(Pos == "G", .keep = FALSE)
+    group_split(Position == "Goalie", .keep = FALSE)
   
   ## Removes the columns with only NA from each of the two lists
   smjhl_data <- lapply(smjhl_data, function(y) y %>% select(where(function(x) sum(!is.na(x))>0)) )
@@ -357,7 +360,7 @@ shl <- function(){
                          max_dist = 3) %>% 
     ## Removes the join variable
     select(-clean_name.x, -clean_name.y) %>% 
-    group_split(Pos == "G", .keep = FALSE)
+    group_split(Position == "Goalie", .keep = FALSE)
   
   ## Removes the columns with only NA from each of the two lists
   shl_data <- lapply(shl_data, function(y) y %>% select(where(function(x) sum(!is.na(x))>0)) )
