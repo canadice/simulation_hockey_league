@@ -29,7 +29,7 @@ team_ui <- function(id){
         ),
         br(),
         em(paste("This data is scraped from the S57 schedule and
-        and the S57 index pages of the SHL. Data from", date_scraped))
+        and the S57 index pages of the SHL. Data from", date_scraped, ".", sep = ""))
       ),
       mainPanel(
         width = 9,
@@ -56,7 +56,7 @@ team_ui <- function(id){
         "Statistics Leaders",
         fluidRow(
           column(
-            width = 4,
+            width = 6,
             selectInput(
               inputId = ns("statisticOne"),
               label = "Choose statistic",
@@ -70,7 +70,7 @@ team_ui <- function(id){
             )
           ),
           column(
-            width = 4, 
+            width = 6,
             selectInput(
               inputId = ns("statisticTwo"),
               label = "Choose statistic",
@@ -81,9 +81,12 @@ team_ui <- function(id){
             DTOutput(
               outputId = ns("dataTableTwo")
             )
-          ),
+          )
+        ),
+        br(),
+        fluidRow(
           column(
-            width = 4,
+            width = 6,
             selectInput(
               inputId = ns("statisticThree"),
               label = "Choose statistic",
@@ -94,11 +97,9 @@ team_ui <- function(id){
             DTOutput(
               outputId = ns("dataTableThree")
             )
-          )
-        ),
-        fluidRow(
+          ),
           column(
-            width = 4,
+            width = 6,
             selectInput(
               inputId = ns("statisticFour"),
               label = "Choose statistic",
@@ -109,9 +110,12 @@ team_ui <- function(id){
             DTOutput(
               outputId = ns("dataTableFour")
             )
-          ),
+          )
+        ),
+        br(),
+        fluidRow(
           column(
-            width = 4, 
+            width = 6,
             selectInput(
               inputId = ns("statisticFive"),
               label = "Choose statistic",
@@ -124,7 +128,7 @@ team_ui <- function(id){
             )
           ),
           column(
-            width = 4,
+            width = 6,
             selectInput(
               inputId = ns("statisticSix"),
               label = "Choose statistic",
