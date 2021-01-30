@@ -4,6 +4,8 @@ load(paste("data/SHL&SMJHL 2021-01-19.RData", sep = ""))
 att_key <- read.csv2("data/attribute_key.csv")
 division_key <- read.csv2("data/team_division_conference.csv")
 
+team_colors <- read.csv2("data/team_colors.csv")
+
 rmdfiles <- c("data/explanation_MDS.Rmd", "data/welcome.Rmd")
 
 ### Creates a character vector of all the player statistics for use in drop down menus.

@@ -232,34 +232,13 @@ team_server <- function(id){
             target = 'row',
             color = 
               styleEqual(
-                levels =  c("Atlanta Inferno","Baltimore Platoon","Buffalo Stampede",
-                            "Chicago Syndicate", "Hamilton Steelhawks", "Manhattan Rage",
-                            "New England Wolfpack", "Tampa Bay Barracuda",
-                            "Toronto North Stars",  "Calgary Dragons", "Edmonton Blizzard",
-                            "Los Angeles Panthers", "Minnesota Monarchs", "New Orleans Specters",
-                            "San Francisco Pride", "Seattle Argonauts", "Texas Renegades", 
-                            "Winnipeg Jets", "Winnipeg Aurora"),
-                values = c("#F26522", "#7B1113", "#F9BB14", #Alt. F5B918
-                           "#B91C25", "#000000", "#081C3E", "#FFFFFF", #Alt. D1B236 for yellow
-                           "#FF882C", "#000000", "#EAE1E1", "#006A36",
-                           "#000000", "#C5942C", "#D4AF37", "#000000",
-                           "#61615F", "#FFFFFF", "#D10923", "#c8c6c6")
+                levels = team_colors$name,
+                values = team_colors$color
               ),
             backgroundColor = 
               styleEqual(
-                levels =  c("Atlanta Inferno","Baltimore Platoon","Buffalo Stampede",
-                            "Chicago Syndicate", "Hamilton Steelhawks", "Manhattan Rage",
-                            "New England Wolfpack", "Tampa Bay Barracuda",
-                            "Toronto North Stars",  "Calgary Dragons", "Edmonton Blizzard",
-                            "Los Angeles Panthers", "Minnesota Monarchs", "New Orleans Specters",
-                            "San Francisco Pride", "Seattle Argonauts", "Texas Renegades", 
-                            "Winnipeg Jets", "Winnipeg Aurora"),
-                values = c("#BE1E2D", "#000080", "#164833", "#000000", #Alt. 93999F for silver
-                           "#D9AD00", "#00C2F2", "#253b50", "#227383",
-                           "#DF0916", "#123A1E", #Alt. D3B35B for gold
-                           "#000000", "#850EFF", "#0B2042", "#360854",
-                           "#00839A", "#000000", "#195AA5", "#081C41",
-                           "#0e2e2d")
+                levels = team_colors$name,
+                values = team_colors$fill
                 )
           )
       })
@@ -298,34 +277,13 @@ team_server <- function(id){
             target = 'row',
             color = 
               styleEqual(
-                levels =  c("Atlanta Inferno","Baltimore Platoon","Buffalo Stampede",
-                            "Chicago Syndicate", "Hamilton Steelhawks", "Manhattan Rage",
-                            "New England Wolfpack", "Tampa Bay Barracuda",
-                            "Toronto North Stars",  "Calgary Dragons", "Edmonton Blizzard",
-                            "Los Angeles Panthers", "Minnesota Monarchs", "New Orleans Specters",
-                            "San Francisco Pride", "Seattle Argonauts", "Texas Renegades", 
-                            "Winnipeg Jets", "Winnipeg Aurora"),
-                values = c("#F26522", "#7B1113", "#F9BB14", #Alt. F5B918
-                           "#B91C25", "#000000", "#081C3E", "#FFFFFF", #Alt. D1B236 for yellow
-                           "#FF882C", "#000000", "#EAE1E1", "#006A36",
-                           "#000000", "#C5942C", "#D4AF37", "#000000",
-                           "#61615F", "#FFFFFF", "#D10923", "#c8c6c6")
+                levels = team_colors$name,
+                values = team_colors$color
               ),
             backgroundColor = 
               styleEqual(
-                levels =  c("Atlanta Inferno","Baltimore Platoon","Buffalo Stampede",
-                            "Chicago Syndicate", "Hamilton Steelhawks", "Manhattan Rage",
-                            "New England Wolfpack", "Tampa Bay Barracuda",
-                            "Toronto North Stars",  "Calgary Dragons", "Edmonton Blizzard",
-                            "Los Angeles Panthers", "Minnesota Monarchs", "New Orleans Specters",
-                            "San Francisco Pride", "Seattle Argonauts", "Texas Renegades", 
-                            "Winnipeg Jets", "Winnipeg Aurora"),
-                values = c("#BE1E2D", "#000080", "#164833", "#000000", #Alt. 93999F for silver
-                           "#D9AD00", "#00C2F2", "#253b50", "#227383",
-                           "#DF0916", "#123A1E", #Alt. D3B35B for gold
-                           "#000000", "#850EFF", "#0B2042", "#360854",
-                           "#00839A", "#000000", "#195AA5", "#081C41",
-                           "#0e2e2d")
+                levels = team_colors$name,
+                values = team_colors$fill
               )
           )
       })
