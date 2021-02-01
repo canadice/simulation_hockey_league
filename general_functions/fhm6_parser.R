@@ -241,7 +241,12 @@ fhm6Parser <- function(saveGame){
     ) %>% 
     mutate(
       sim = saveGame,
-      P = G+A
+      P = G+A,
+      PDO = PDO %>% as.numeric(),
+      across(contains("60"), as.numeric),
+      across(contains("rel"), as.numeric),
+      `CF.` = `CF.` %>% as.numeric(),
+      `FF.` = `FF.` %>% as.numeric()
     ) %>% 
     rename(
       `+/-` = `X...`
@@ -274,10 +279,10 @@ fhm6Parser <- function(saveGame){
   )
 }
 
-test2 <- 
+tests <- 
   lapply(
     X = paste(
-      "WJC_S57_Line2-Test", 
+      "WJC_S57-RR1-Test", 
       1:8 %>% as.character(),
       ".lg",
       sep = ""),
@@ -285,7 +290,7 @@ test2 <-
   ) 
 
 simTeams <- 
-  test2 %>% 
+  tests %>% 
   lapply(
     FUN = function(x){
       x$teams %>% 
@@ -300,7 +305,7 @@ simTeams <-
   ) 
 
 simPlayers <- 
-  test2 %>% 
+  tests %>% 
   lapply(
     FUN = function(x){
       x$players %>% 
