@@ -355,7 +355,7 @@ prediction <-
 colnames(prediction) <- 
   c("ClassDefenceman", 
     "ClassForward", 
-    "prob", 
+    "probability", 
     "predictedClassForward",
     "Name",
     "Season"
@@ -369,7 +369,7 @@ prediction %>%
     predictedClassForward
     ) %>% 
   summarize(
-    mean = mean(prob),
+    mean = mean(probability),
     n = n()
     )
 
@@ -407,20 +407,32 @@ predictionTest <-
       batch_size = 50
     ) %>% 
       as.data.frame(),
-    testData$FHMID
+    testData$FHMID,
+    testData$Season
   ) 
 
 colnames(predictionTest) <- 
   c("probability", 
     "predictedClassForward",
-    "FHMID"
+    "FHMID",
+    "Season"
   )
 
 predictionTest %>% 
   group_by(
-    predictedClass2
+    predictedClassForward
   ) %>% 
   summarize(
-    mean = mean(prob),
+    mean = mean(probability),
     n = n()
   )
+
+write.csv2(
+  x = predictionTest, 
+  row.names = FALSE,
+  file = "SHL Unlabeled predictions 20210206.csv")
+
+write.csv2(
+  x = prediction %>% select(-ClassDefenceman), 
+  row.names = FALSE,
+  file = "SHL Labeled predictions 20210206.csv")
