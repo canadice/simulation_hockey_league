@@ -7,7 +7,7 @@ require(plyr)
 require(dplyr)
 require(tibble)
 
-load(paste("shl_player_database/data/SHL&SMJHL 2021-01-19.RData", sep = ""))
+load(paste("shl_player_database/data/SHL&SMJHL 2021-01-07.RData", sep = ""))
 
 eligible <- 
   read_sheet("https://docs.google.com/spreadsheets/d/1fQ81SqrV2RbuwwshThOli422nmcEY9RHAV6F6qXFy7g/edit#gid=467923313",
@@ -33,9 +33,15 @@ wjc_skaters <-
     by = c("Name" = "Name"),
     max_dist = 2
   ) %>% 
+  relocate(
+    SHA, .after = SHG
+  ) %>% 
+  relocate(
+    GR, .after = DGR
+  ) %>% 
   select(where(~ sum(!is.na(.x))>0)) %>% 
   cbind(
-    as.matrix(.[, 35:64]) %*% (as.matrix(role_key)) %>% 
+    as.matrix(.[, 35:62]) %*% (as.matrix(role_key)) %>% 
       as.data.frame() %>% 
       apply(MARGIN = 1, FUN = function(x){
         index <- head(order(x, decreasing =TRUE), n = 5)
@@ -48,8 +54,8 @@ wjc_skaters <-
   mutate(
     TPE = 
       case_when(
-        is.na(TPE) ~ tpe,
-        TRUE ~ TPE
+        is.na(tpe) ~ TPE,
+        TRUE ~ tpe
       )
   ) %>% 
   arrange(Position.x, TPE)
