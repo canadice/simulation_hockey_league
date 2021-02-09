@@ -5,15 +5,17 @@
 ###                      FHM6 EXPORTED DATA PARSER                      ###
 ###                                                                     ###
 ###                         CREATED: 2021-01-19                         ###
-###                        LAST EDIT: 2021-01-25                        ###
+###                        LAST EDIT: 2021-02-09                        ###
 ###                                                                     ###
 ###########################################################################
 ###########################################################################
 
 require(dplyr)
 
+options(scipen = 999)
+
 fhm6Parser <- function(saveGame){
-  ### Add the path tou your document folder
+  ### Add the path to your document folder
   saveFolder <- "C:/Users/Canadice/Documents/Out of the Park Developments/Franchise Hockey Manager 6/saved_games/"
   
   
@@ -34,7 +36,9 @@ fhm6Parser <- function(saveGame){
       sep = ""
     )
   
-  setwd(dir)
+  t <- try(setwd(dir))
+  if("try-error" %in% class(t)) return(NULL)
+  
   
   ### Loads required packages
   require(tibble)
@@ -91,12 +95,13 @@ fhm6Parser <- function(saveGame){
       divisions %>% 
         select(
           Division.Id,
+          Conference.Id,
           Name
         ) %>% 
         rename(
           Division = Name
         ),
-      by = c("Division.Id")
+      by = c("Division.Id", "Conference.Id")
     ) %>% 
     ### Joins team record data
     left_join(
@@ -231,10 +236,18 @@ fhm6Parser <- function(saveGame){
     currentPlayerStatsPre %>% 
     full_join(
       currentPlayerStatsReg
-    ) %>% 
-    full_join(
-      currentPlayerStatsPost
-    ) %>% 
+    )
+    
+  if(nrow(currentPlayerStatsPost) != 0){
+    PLAYERSTATS <- 
+      PLAYERSTATS %>% 
+      full_join(
+        currentPlayerStatsPost
+      )   
+  }
+    
+  PLAYERSTATS <- 
+    PLAYERSTATS %>% 
     ### Adds on player information
     left_join(
       playerInfo
@@ -278,68 +291,5 @@ fhm6Parser <- function(saveGame){
       )
   )
 }
-
-tests <- 
-  lapply(
-    X = paste(
-      "WJC_S57-RR1-Test", 
-      1:8 %>% as.character(),
-      ".lg",
-      sep = ""),
-    FUN = fhm6Parser
-  ) 
-
-simTeams <- 
-  tests %>% 
-  lapply(
-    FUN = function(x){
-      x$teams %>% 
-        filter(
-          TeamId == 7
-        )
-    }
-  ) %>% 
-  do.call(
-    rbind,
-    args = .
-  ) 
-
-simPlayers <- 
-  tests %>% 
-  lapply(
-    FUN = function(x){
-      x$players %>% 
-        filter(
-          TeamId == 7
-        )
-    }
-  ) %>% 
-  do.call(
-    rbind,
-    args = .
-  ) %>% 
-  group_by(
-    # sim,
-    Last.Name,
-    Type
-  ) %>% 
-  summarize(
-    across(where(is.numeric), .fns = mean)
-  ) %>% 
-  arrange(
-    Last.Name,
-    Type
-  )
-  
-  
-  
-
-
-
-
-
-
-
-
 
 
