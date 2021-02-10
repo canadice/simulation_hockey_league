@@ -14,10 +14,12 @@ require(dplyr)
 
 options(scipen = 999)
 
-fhm6Parser <- function(saveGame){
+fhm6Parser <- function(
   ### Add the path to your document folder
-  saveFolder <- "C:/Users/Canadice/Documents/Out of the Park Developments/Franchise Hockey Manager 6/saved_games/"
-  
+  saveFolder,
+  ### The name of the save game
+  saveGame
+  ){
   
   ### The csv-files are always located in import_export/csv
   csvFolder <- "/import_export/csv"
